@@ -1,4 +1,5 @@
 (function () {
+    var userAgent=navigator.userAgent.toLowerCase();
     //if Samsung 11
     if (typeof localStorage == "undefined" && typeof FileSystem == "function") {
         var fileSysObj = new FileSystem();
@@ -67,5 +68,25 @@
             saveFile(true);
         }
         window.localStorage = lStorage;
+    }else if(userAgent.indexOf('maple')!=-1 && typeof FileSystem == "function"){//if newer samsung
+        var fileSysObj = new FileSystem();
+        var commonDir = fileSysObj.isValidCommonPath(curWidget.id);
+        if (!commonDir) {
+            fileSysObj.createCommonDir(curWidget.id);
+        }
+        var fileName = curWidget.id + "_localStorage.db";
+
+        var fileObj = fileSysObj.openCommonFile(fileName, "r+");
+        if (fileObj !== null) {
+            try {
+                JSON.parse(fileObj.readAll());
+            } catch (e) {
+                localStorage.clear();//if file is empty, app was removed
+            }
+        } else {
+            fileObj = fileSysObj.openCommonFile(fileName, "w");
+            fileObj.writeAll("{}");
+        }
+        fileSysObj.closeCommonFile(fileObj);
     }
 }());
