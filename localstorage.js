@@ -16,7 +16,7 @@
             try {
                 lStorage = JSON.parse(fileObj.readAll());
             } catch (e) {
-                alert(e);
+                //(e);
             }
         } else {
             fileObj = fileSysObj.openCommonFile(fileName, "w");
@@ -27,7 +27,7 @@
         // Save storage
         var saveFile = function (delay) {
             if (changed && typeof JSON == 'object') {
-                var $this = this;
+                var $this = window.localStorage;
                 var save = function () {
                     fileObj = fileSysObj.openCommonFile(fileName, "w");
                     fileObj.writeAll(JSON.stringify($this));
@@ -44,28 +44,28 @@
         };
 
 
-        window.localStorage = {
-            setItem: function (key, value) {
-                changed = true;
-                this[key] = value;
-                saveFile(true);
-                return this[key];
-            },
-            getItem: function (key) {
-                return this[key];
-            },
-            removeItem: function (key) {
-                delete this[key];
-                saveFile(true);
-            },
-            clear: function(){
-                for(var key in this){
-                    if(typeof this[key]!='function'){
-                        delete this[key];
-                    }
-                }
-                saveFile(true);
-            }
+        lStorage.setItem = function (key, value) {
+            changed = true;
+            this[key] = value;
+            saveFile(true);
+            return this[key];
         };
+        lStorage.getItem = function (key) {
+            return this[key];
+        };
+        lStorage.removeItem = function (key) {
+            delete this[key];
+            saveFile(true);
+        };
+        lStorage.clear = function () {
+            var self = this;
+            for (var key in self) {
+                if (typeof self[key] != 'function') {
+                    delete self[key];
+                }
+            }
+            saveFile(true);
+        }
+        window.localStorage = lStorage;
     }
-})();
+}());
